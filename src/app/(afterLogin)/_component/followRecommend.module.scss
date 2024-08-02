@@ -1,0 +1,29 @@
+.frcard {
+    display:flex;   
+    button {
+        white-space: nowrap;
+    }
+}
+.profile {
+    display:flex;
+    div {
+        display:flex;
+        flex-direction: column;
+        span {
+            white-space: nowrap;
+        }            
+    }        
+}
+.posbottom {
+    position:fixed;
+    bottom:0;
+    left:0;
+    padding:10px;
+    img {
+        border-radius: 100%;
+    }
+    &:hover {
+        border-radius:5px;
+        background:#eaeaea;
+    }
+}

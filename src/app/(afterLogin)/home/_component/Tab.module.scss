@@ -1,0 +1,19 @@
+.homeFixed {
+    position:fixed;    
+    top:0;    
+    width:100%;
+    height:50px;
+    button {
+        position:relative;
+    }
+}
+
+.tabIndicator {
+    position:absolute;
+    left:0;
+    bottom:0;
+    height:4px;
+    width:54px;
+    border-radius:5px;
+    background-color:aqua;    
+}
