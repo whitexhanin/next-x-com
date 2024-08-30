@@ -19,6 +19,10 @@ export default function LogoutButton () {
         signOut({redirect: false})
 
         .then(() => {
+            fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/logout`, {
+                method : 'post',
+                credentials : 'include'
+            })
             router.replace('/');
         });
     }

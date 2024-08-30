@@ -1,24 +1,30 @@
 "use client";
-
-import style from '@/app/(afterLogin)/_component/followRecommend.module.scss';
-import { User } from '@/model/User';
-import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import Image from 'next/image';
-import Link from 'next/link';
-import { getFollowRecommends } from '../_lib/getFollowRecommends';
-import { useSession } from 'next-auth/react';
-import credentials from 'next-auth/providers/credentials';
-import { MouseEventHandler, useEffect } from 'react';
-
+import { User } from "@/model/User";
+import { Session } from "@auth/core/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { getUser } from "../_lib/getUser";
+import { MouseEventHandler } from "react";
 type Props = {
-  user : User
+    username : string,
+    session : Session | null ,
 }
 
-export default function FollowRecommend ({user} : Props) {
+export default function UserInfo ({username, session} : Props) {
+
     
-    const {data : session} = useSession();
-    const followed = !!user?.Followers.find(f => f.id === session?.user?.email);
     const queryClient = useQueryClient();
+    const router = useRouter();    
+    const onClickBack = () => {
+        router.back();
+    }   
+    const {data : user , error} = useQuery<User , Object , User ,[_1 : string , _2 : string]>({
+        queryKey : ['users',username],
+        queryFn : getUser,
+        staleTime : 60 * 1000,
+        gcTime: 300 * 1000
+    })
+    const followed = !!user?.Followers.find(v => v.id === session?.user?.email);
 
     const follow = useMutation ({
         mutationFn : (userId : string) => {
@@ -103,34 +109,64 @@ export default function FollowRecommend ({user} : Props) {
         onError(){}
     })
 
+    if(error){
+
+
+    }
+    if(!user){
+        return null
+    }
+
     const onFollow: MouseEventHandler<HTMLButtonElement> = (e) => {
     e.stopPropagation();
     e.preventDefault();
-    console.log('follow', followed, user.id);
+    console.log('follow', followed, user?.id);
     if (followed) {
       unfollow.mutate(user.id);
     } else {
       follow.mutate(user.id);
     }
   };
+  const onClickMes:MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
 
+    const ids = [username , session?.user?.email];
+    ids.sort();
+    router.push(`/messages/${ids.join('-')}`);
+
+
+  }
+    
     return (
-            <>
-              <div className={style.frcard}>
-                  <Link href={`/${user.id}`} className={style.profile}>
-                      <Image 
-                          src={`${user.image}`}
-                          width={50}
-                          height={50}
-                          alt='userImage'
-                      />
-                      <div>
-                          <span>{user.nickname}</span>
-                          <span>{user.id}</span>
-                      </div>
-                  </Link>
-                  <button onClick={onFollow}>{followed? '팔로잉' : '팔로우'}</button> 
-              </div>
-            </>
+        <>
+            <div>{username}</div>
+            <div>
+                <button onClick={onClickBack}>뒤로</button>
+                <span>{session?.user?.email}</span>                
+            </div>
+            <div>
+                <span></span>
+                <img src= {session?.user?.image as string} alt={session?.user?.email as string} />
+                <div>
+                    <span>{session?.user?.name}</span>
+                    <span>{session?.user?.email}</span>                    
+                </div>
+                {username !== session?.user?.email && 
+                    <div>
+                        <button onClick={onClickMes}>메시지</button>
+                        <button onClick={onFollow}>{followed ? '팔로잉' : '팔로우'}</button>
+                    </div>
+                }
+            </div>
+            <div>
+                <span>
+                    <span>{user?._count.Followers}</span>
+                    <span>팔로워</span>
+                    <span>{user?._count.Followings}</span>
+                    <span>팔로우 중</span>
+                </span>
+            </div>            
+        </>
     )
 }

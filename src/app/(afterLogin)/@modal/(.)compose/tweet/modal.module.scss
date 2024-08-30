@@ -145,3 +145,10 @@
 .actionButton:disabled {
     opacity: 0.5;
 }
+.imgpreview {
+    height:100px;
+    img {
+        max-height:100%;
+        object-fit: contain;
+    }
+}

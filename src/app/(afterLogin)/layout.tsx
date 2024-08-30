@@ -12,11 +12,14 @@ import { useSession } from 'next-auth/react';
 import { User } from '@/model/User';
 import { auth } from '@/auth';
 import NavMenu from './_component/NavMenu';
+import FollowRecommendSection from './_component/FollowRecommendSection';
 
-export default function AfterLoginLayout ({children , modal} : {children : React.ReactNode , modal : React.ReactNode }) {
+
+export default function AfterLoginLayout ({children , modal } : {children : React.ReactNode , modal : React.ReactNode }) {
 
     const segment = useSelectedLayoutSegment();
     console.log(typeof(segment));
+    console.log(segment);
 
     const onModalopen = () => {
 
@@ -29,35 +32,37 @@ export default function AfterLoginLayout ({children , modal} : {children : React
 
     return(
         <div className={style.container}>
-            <div className={style.leftSectionWrap}>
-                <div className={style.leftSection}>
-                    <div className={style.leftSectionFixed}>
-                        <h1 className={style.logo}>
-                            <div className={style.logoPill}></div>
-                        </h1>
-                        <NavMenu />
-                        <LogoutButton />                     
+            <RQProvider>
+                <div className={style.leftSectionWrap}>
+                    <div className={style.leftSection}>
+                        <div className={style.leftSectionFixed}>
+                            <h1 className={style.logo}>
+                                <div className={style.logoPill}></div>
+                            </h1>
+                            <NavMenu />
+                            <LogoutButton />                     
+                        </div>
                     </div>
                 </div>
-            </div>
-            <RQProvider>
                 <div className={style.main}>
                     {children}                
-                </div>            
-                <div className={style.rightSectionWrpper}>
-                    <div className={style.rightSectionInner}>
-                        <div className={style.rightSection}>
-                            <div className={style.search}>
-                                <SearchFrom/>                                
-                            </div>
-                            <TrendSection />
-                            <div className={style.followRecommend}>
-                                <h3>팔로우 추천</h3>
-                                <FollowRecomment/>                                
-                            </div>
-                        </div>                    
+                </div>     
+                {segment !== 'messages' &&     
+                    <div className={style.rightSectionWrpper}>
+                        <div className={style.rightSectionInner}>
+                            <div className={style.rightSection}>
+                                <div className={style.search}>
+                                    <SearchFrom/>                                
+                                </div>
+                                <TrendSection />
+                                <div className={style.followRecommend}>
+                                    <h3>팔로우 추천</h3>
+                                    <FollowRecommendSection />                                                                
+                                </div>
+                            </div>                    
+                        </div>
                     </div>
-                </div>
+                }   
                 {modal} 
             </RQProvider>
         </div>

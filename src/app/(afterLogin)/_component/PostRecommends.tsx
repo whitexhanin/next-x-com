@@ -28,25 +28,24 @@ export default function PostRecommends (){
         queryFn: getPostRecommends,
         initialPageParam:0,
         getNextPageParam: (lastPage) => lastPage.at(-1)?.postId,
-        staleTime: 60 * 1000, // fresh -> stale, 5분이라는 기준
-        gcTime: 300 * 1000,
+        staleTime: 60 * 1000, // fresh -> stale, 1분이라는 기준
+        gcTime: 300 * 1000, //기본 5분이고 지정 시간  뒤 캐시 사라짐
     });
 
     useEffect(()=>{
         if(inView){
             !isFetching && hasNextPage && fetchNextPage();
         }
-    },[inView, !isFetching , fetchNextPage , hasNextPage])
+    },[inView, isFetching , fetchNextPage , hasNextPage])
 
-    console.log('data',data);
-
+    console.log('data',data);    
     return (
         <>
             <div>추천</div>
             {data?.pages.map((page , idx)=> (
                 <Fragment key={idx}>
                     {page.map((post)=>(
-                        <Post key={post.postId} post={post}/>
+                        <Post key={post.postId} post={post}/>                        
                     ))}                                    
                 </Fragment>
             ))}

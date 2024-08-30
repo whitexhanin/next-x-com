@@ -6,7 +6,7 @@ interface UserId {
 }
 
 export interface Post {
-  postId: number;
+  postId: number | undefined;
   User: User;
   content: string;
   createdAt: Date;

@@ -26,13 +26,15 @@
     "react-dom": "^18",
     "react-intersection-observer": "^9.13.0",
     "react-textarea-autosize": "^8.5.3",
-    "scss": "^0.2.4"
+    "scss": "^0.2.4",
+    "zustand": "^4.5.4"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "classnames": "^2.5.1",
     "eslint": "^8",
     "eslint-config-next": "^14",
     "msw": "^2.3.1",

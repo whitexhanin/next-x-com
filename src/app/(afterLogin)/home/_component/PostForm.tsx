@@ -10,7 +10,7 @@ export default function PostForm({me} : {me: Session | null})  {
     const queryClient = useQueryClient();
     const imageRef = useRef<HTMLInputElement>(null);
     const [content , setContent] = useState('');
-    const [imgPreView , setimgPrevView] = useState<Array<{ dataUrl: string; file: File; }>>([]);
+    const [imgPrevView , setimgPrevView] = useState<Array<{ dataUrl: string, file: File } | null>>([]);
 
     console.log('queryClient rec',queryClient.getQueryData(["posts","recommends"]));
     console.log('queryClient fol',queryClient.getQueryData(["posts","followings"]));
@@ -30,11 +30,12 @@ export default function PostForm({me} : {me: Session | null})  {
             // if(imgPrevView[0].file){
             //     formData.append("images",imgPrevView[0].file);
             // }      
-            console.log('imgPreView',imgPreView);
-            imgPreView.forEach((p) => {
+            console.log('imgPreView',imgPrevView);
+            imgPrevView.forEach((p) => {
                 console.log('p',p);
                 p && formData.append('images', p.file);
               })
+              console.log('formData',formData);
 
             //요청 사항
             //formdata 데이터 저장
@@ -51,6 +52,7 @@ export default function PostForm({me} : {me: Session | null})  {
             console.log(' success response',response)//응답정도
 
             const newPost = await response.json();
+            console.log('newpost' , newPost);
 
             setContent('');
             setimgPrevView([]);
@@ -77,15 +79,14 @@ export default function PostForm({me} : {me: Session | null})  {
                 })
             }
              if (queryClient.getQueryData(["posts","followings"])){
-                queryClient.setQueryData(["posts","followings"],(oldData : {pages: Post[][]}) => {
-                    console.log('oldData1',oldData);
-                    console.log('oldData2',oldData.pages);
-    
+                queryClient.setQueryData(["posts","followings"],(oldData : any) => {
+                    console.log('oldData1',oldData);    
                     const shallow = {...oldData , pages : [...oldData.pages]}
                     console.log('shallow',shallow);
                     shallow.pages[0] = [...shallow.pages[0]];
                     console.log('shallow.pages[0]',shallow.pages[0]);
                     shallow.pages[0].unshift(newPost);
+
                     return shallow;
     
                 })
@@ -97,68 +98,7 @@ export default function PostForm({me} : {me: Session | null})  {
         }
     })
 
-    // const mutation = useMutation({
-    //     mutationFn: //요청 할 사항
-    //      ()=>{
-    //         const formData = new FormData();
-
-    //         formData.append('content' , content);
-    //         formData.append('images',imgPrevView[0].file);
-    //         return fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts`,{
-    //             method : "post",
-    //             credentials:'include',
-    //             body : formData,
-    //         });
-    //     },
-    //     )}
     
-    // const onSubmit : FormEventHandler = async (e) => {
-    //     e.preventDefault();
-    //     const formData = new FormData();
-
-    //     formData.append('content' , content);
-    //     formData.append('images',imgPrevView[0].file);
-
-    //     try {
-    //         const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts`,{
-    //             method : "post",
-    //             credentials:'include',
-    //             body : formData,
-    //         });
-
-    //          // post query를 post에 넘겨서 바로 반응 하게 하기
-    //         // fetch 성공 201 이면
-    //         // 박스들 비워주고
-    //         // 응답 받은 json으로 담고
-    //         // queryclent에 set data 담는데,
-    //         // queryClient.setQueryData(queryKey, updater)
-    //         // 
-    //         // prevData:pages => { const shallow = {...prevData, pages:[...prevData.pages]};}
-    //         // 
-
-    //         if(response.status === 201){
-    //             console.log('201');
-    //             setContent('');
-    //             setimgPrevView([]);
-
-    //             const newPost = await response.json();
-
-    //             queryClient.setQueryData(['posts', 'recommends'], 
-    //                 (prevData: {pages: Post[][]})=> {
-    //                     const shallow  = {...prevData, pages:[...prevData.pages]};
-    //                     console.log('shallow',shallow);
-    //                     shallow.pages[0] = [...shallow.pages[0]];
-    //                     shallow.pages[0].unshift(newPost);
-    //                     return shallow;
-    //                 }
-    //             )
-    //         }
-
-    //     } 
-    //     catch (err) {
-    //         console.log(err);
-    //     }
-    // }
     const onChange:ChangeEventHandler<HTMLTextAreaElement> = (e) => {
         setContent(e.target.value);
     }
@@ -184,7 +124,6 @@ export default function PostForm({me} : {me: Session | null})  {
                         prev[index] = {dataUrl : reader.result as string , file}
                         console.log('prev', prev);
                         return prev;
-                        
                     })
                 }
 
@@ -192,7 +131,7 @@ export default function PostForm({me} : {me: Session | null})  {
 
                 console.log('reader',reader);
                 console.log('file',file);      
-                console.log('setimgPrevView',imgPreView);                    
+                console.log('setimgPrevView',imgPrevView);                    
 
             })
         }
@@ -206,16 +145,18 @@ export default function PostForm({me} : {me: Session | null})  {
             <div>
                 <TextareaAutosize value={content} onChange={onChange} defaultValue="무슨 일이 일어나고 있나요?"/>
             </div>
-            {/* <div className={style.imgpreview}>
+            <div className={style.imgpreview}>
                 {
-                    imgPrevView.map((image)=> (
-                        <img src={image.dataUrl} key ={image.dataUrl}></img>
+                    imgPrevView.map((image , index)=> (
+                        <div key ={index}>
+                            <img src={image?.dataUrl} style={{width:'100%',objectFit:'contain',maxHeight:100}}/>
+                        </div>                        
                     ))
                 }
-            </div> */}
-            <button onClick = {onClickButton}>파일</button>   
+            </div>
+            {/* <button onClick = {onClickButton}>파일</button>    */}
             {/* <label htmlFor="addfile" className={style.filelabel}>파일</label>   */}
-            <input type="file" name="imageFiles" id="addfile" multiple  hidden ref={imageRef} onChange={onUpload}/>            
+            <input type="file" name="imageFiles" id="addfile" multiple  ref={imageRef} onChange={onUpload}/>            
             <button className={style.submit}>게시하기</button>
         </form>
     )
